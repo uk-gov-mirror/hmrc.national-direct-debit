@@ -180,13 +180,14 @@ class ChrisService @Inject() (chrisConnector: ChrisConnector, validator: SchemaV
     val keysData = getActiveEnrolmentForKeys(submission.serviceType)
     val envelopeDetails = EnvelopeDetails.details(submission, request, knownFactData, keysData, correlationId)
 
+    audit(envelopeDetails, correlationId)
+
     validator.validate(envelopeDetails.build) match {
       case Failure(exception) => throw exception
       case Success(_) =>
         chrisConnector.submitEnvelope(envelopeDetails.build, correlationId) map {
           case submissionResult if submissionResult.status == SubmissionStatusSubmitted =>
             logger.debug(s"ChRIS submission successful for a correlationId = $correlationId")
-            audit(envelopeDetails, correlationId)
             submissionResult
           case _ =>
             val message =
