@@ -634,7 +634,7 @@ Tue Oct 28 16:55:51 GMT 2003
   </xsd:simpleType>
   <xsd:simpleType name='AccountNameType'>
     <xsd:restriction base='xsd:string'>
-      <xsd:maxLength value='100' />
+      <xsd:maxLength value='28' />
       <xsd:pattern value='[A-Za-z0-9 &amp;&apos;\(\)\*,\-\./]*' />
     </xsd:restriction>
   </xsd:simpleType>
