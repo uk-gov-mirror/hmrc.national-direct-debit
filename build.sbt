@@ -17,6 +17,7 @@ lazy val microservice = Project("national-direct-debit", file("."))
     )
   )
   .settings(CodeCoverageSettings.settings: _*)
+  .settings(SbtUpdatesSettings.settings: _*)
 
 lazy val it = project
   .enablePlugins(PlayScala)
