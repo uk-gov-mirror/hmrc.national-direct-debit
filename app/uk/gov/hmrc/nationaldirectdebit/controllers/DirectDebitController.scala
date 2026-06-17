@@ -57,9 +57,14 @@ class DirectDebitController @Inject() (
     authorise(parse.json).async:
       implicit request =>
         withJsonBody[GenerateDdiRefRequest] { request =>
-          service.generateDdiReference(request).map { response =>
-            Ok(Json.toJson(response))
-          }
+          service
+            .generateDdiReference(request)
+            .map { response =>
+              Ok(Json.toJson(response))
+            }
+            .recover {
+              case e if e.getMessage.contains("Failed to generate DDI Reference.") => Conflict("Failed to generate DDI Reference.")
+            }
         }
 
   def retrieveDirectDebitPaymentPlans(directDebitReference: String): Action[AnyContent] =

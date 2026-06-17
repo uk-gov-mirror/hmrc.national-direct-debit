@@ -21,11 +21,11 @@ import base.SpecBase
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.http.Status.{BAD_REQUEST, OK}
+import play.api.http.Status.{BAD_REQUEST, CONFLICT, OK}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsJson, status}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier}
 import uk.gov.hmrc.nationaldirectdebit.controllers.DirectDebitController
 import uk.gov.hmrc.nationaldirectdebit.models.requests.chris.*
 import uk.gov.hmrc.nationaldirectdebit.models.requests.{AuthenticatedRequest, ChrisSubmissionRequest, GenerateDdiRefRequest, PaymentPlanDuplicateCheckRequest, WorkingDaysOffsetRequest}
@@ -88,6 +88,17 @@ class DirectDebitControllerSpec extends SpecBase {
 
         status(result) mustBe OK
         contentAsJson(result) mustBe Json.toJson(GenerateDdiRefResponse("123"))
+      }
+
+      "return 409 and a when the generateDdiReference returns 502" in new SetUp {
+
+        when(mockDirectDebitService.generateDdiReference(any())(any()))
+          .thenReturn(Future.failed(new BadGatewayException("Failed to generate DDI Reference.")))
+
+        val result: Future[Result] =
+          controller.generateDdiReference()(fakeRequestWithJsonBody(Json.toJson(testDdiRefRequestModel)))
+
+        status(result) mustBe CONFLICT
       }
 
       "return 400 when the request is not valid" in new SetUp {
